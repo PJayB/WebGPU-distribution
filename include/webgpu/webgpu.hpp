@@ -1040,20 +1040,20 @@ HANDLE(Adapter)
 	void getProperties(AdapterProperties * properties);
 	Bool hasFeature(FeatureName feature);
 	NO_DISCARD std::unique_ptr<RequestDeviceCallback> requestDevice(const DeviceDescriptor& descriptor, RequestDeviceCallback&& callback);
-	void reference();
+	void addRef();
 	void release();
 	Device requestDevice(const DeviceDescriptor& descriptor);
 END
 
 HANDLE(BindGroup)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(BindGroupLayout)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1067,13 +1067,13 @@ HANDLE(Buffer)
 	NO_DISCARD std::unique_ptr<BufferMapCallback> mapAsync(MapModeFlags mode, size_t offset, size_t size, BufferMapCallback&& callback);
 	void setLabel(char const * label);
 	void unmap();
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(CommandBuffer)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1094,7 +1094,7 @@ HANDLE(CommandEncoder)
 	void resolveQuerySet(QuerySet querySet, uint32_t firstQuery, uint32_t queryCount, Buffer destination, uint64_t destinationOffset);
 	void setLabel(char const * label);
 	void writeTimestamp(QuerySet querySet, uint32_t queryIndex);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1111,14 +1111,14 @@ HANDLE(ComputePassEncoder)
 	void setLabel(char const * label);
 	void setPipeline(ComputePipeline pipeline);
 	void writeTimestamp(QuerySet querySet, uint32_t queryIndex);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(ComputePipeline)
 	BindGroupLayout getBindGroupLayout(uint32_t groupIndex);
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1149,7 +1149,7 @@ HANDLE(Device)
 	void pushErrorScope(ErrorFilter filter);
 	void setLabel(char const * label);
 	NO_DISCARD std::unique_ptr<ErrorCallback> setUncapturedErrorCallback(ErrorCallback&& callback);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1158,14 +1158,14 @@ HANDLE(Instance)
 	Bool hasWGSLLanguageFeature(WGSLFeatureName feature);
 	void processEvents();
 	NO_DISCARD std::unique_ptr<RequestAdapterCallback> requestAdapter(const RequestAdapterOptions& options, RequestAdapterCallback&& callback);
-	void reference();
+	void addRef();
 	void release();
 	Adapter requestAdapter(const RequestAdapterOptions& options);
 END
 
 HANDLE(PipelineLayout)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1174,7 +1174,7 @@ HANDLE(QuerySet)
 	uint32_t getCount();
 	QueryType getType();
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1186,13 +1186,13 @@ HANDLE(Queue)
 	void submit(const WGPUCommandBuffer& commands);
 	void writeBuffer(Buffer buffer, uint64_t bufferOffset, void const * data, size_t size);
 	void writeTexture(const ImageCopyTexture& destination, void const * data, size_t dataSize, const TextureDataLayout& dataLayout, const Extent3D& writeSize);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(RenderBundle)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1213,7 +1213,7 @@ HANDLE(RenderBundleEncoder)
 	void setLabel(char const * label);
 	void setPipeline(RenderPipeline pipeline);
 	void setVertexBuffer(uint32_t slot, Buffer buffer, uint64_t offset, uint64_t size);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1243,27 +1243,27 @@ HANDLE(RenderPassEncoder)
 	void setVertexBuffer(uint32_t slot, Buffer buffer, uint64_t offset, uint64_t size);
 	void setViewport(float x, float y, float width, float height, float minDepth, float maxDepth);
 	void writeTimestamp(QuerySet querySet, uint32_t queryIndex);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(RenderPipeline)
 	BindGroupLayout getBindGroupLayout(uint32_t groupIndex);
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(Sampler)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(ShaderModule)
 	NO_DISCARD std::unique_ptr<CompilationInfoCallback> getCompilationInfo(CompilationInfoCallback&& callback);
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1274,7 +1274,7 @@ HANDLE(Surface)
 	TextureFormat getPreferredFormat(Adapter adapter);
 	void present();
 	void unconfigure();
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1282,7 +1282,7 @@ HANDLE(SwapChain)
 	Texture getCurrentTexture();
 	TextureView getCurrentTextureView();
 	void present();
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1299,13 +1299,13 @@ HANDLE(Texture)
 	TextureUsageFlags getUsage();
 	uint32_t getWidth();
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(TextureView)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1888,7 +1888,7 @@ std::unique_ptr<RequestDeviceCallback> Adapter::requestDevice(const DeviceDescri
 	wgpuAdapterRequestDevice(m_raw, &descriptor, cCallback, reinterpret_cast<void*>(handle.get()));
 	return handle;
 }
-void Adapter::reference() {
+void Adapter::addRef() {
 	return wgpuAdapterReference(m_raw);
 }
 void Adapter::release() {
@@ -1900,7 +1900,7 @@ void Adapter::release() {
 void BindGroup::setLabel(char const * label) {
 	return wgpuBindGroupSetLabel(m_raw, label);
 }
-void BindGroup::reference() {
+void BindGroup::addRef() {
 	return wgpuBindGroupReference(m_raw);
 }
 void BindGroup::release() {
@@ -1912,7 +1912,7 @@ void BindGroup::release() {
 void BindGroupLayout::setLabel(char const * label) {
 	return wgpuBindGroupLayoutSetLabel(m_raw, label);
 }
-void BindGroupLayout::reference() {
+void BindGroupLayout::addRef() {
 	return wgpuBindGroupLayoutReference(m_raw);
 }
 void BindGroupLayout::release() {
@@ -1954,7 +1954,7 @@ void Buffer::setLabel(char const * label) {
 void Buffer::unmap() {
 	return wgpuBufferUnmap(m_raw);
 }
-void Buffer::reference() {
+void Buffer::addRef() {
 	return wgpuBufferReference(m_raw);
 }
 void Buffer::release() {
@@ -1966,7 +1966,7 @@ void Buffer::release() {
 void CommandBuffer::setLabel(char const * label) {
 	return wgpuCommandBufferSetLabel(m_raw, label);
 }
-void CommandBuffer::reference() {
+void CommandBuffer::addRef() {
 	return wgpuCommandBufferReference(m_raw);
 }
 void CommandBuffer::release() {
@@ -2023,7 +2023,7 @@ void CommandEncoder::setLabel(char const * label) {
 void CommandEncoder::writeTimestamp(QuerySet querySet, uint32_t queryIndex) {
 	return wgpuCommandEncoderWriteTimestamp(m_raw, querySet, queryIndex);
 }
-void CommandEncoder::reference() {
+void CommandEncoder::addRef() {
 	return wgpuCommandEncoderReference(m_raw);
 }
 void CommandEncoder::release() {
@@ -2068,7 +2068,7 @@ void ComputePassEncoder::setPipeline(ComputePipeline pipeline) {
 void ComputePassEncoder::writeTimestamp(QuerySet querySet, uint32_t queryIndex) {
 	return wgpuComputePassEncoderWriteTimestamp(m_raw, querySet, queryIndex);
 }
-void ComputePassEncoder::reference() {
+void ComputePassEncoder::addRef() {
 	return wgpuComputePassEncoderReference(m_raw);
 }
 void ComputePassEncoder::release() {
@@ -2083,7 +2083,7 @@ BindGroupLayout ComputePipeline::getBindGroupLayout(uint32_t groupIndex) {
 void ComputePipeline::setLabel(char const * label) {
 	return wgpuComputePipelineSetLabel(m_raw, label);
 }
-void ComputePipeline::reference() {
+void ComputePipeline::addRef() {
 	return wgpuComputePipelineReference(m_raw);
 }
 void ComputePipeline::release() {
@@ -2194,7 +2194,7 @@ std::unique_ptr<ErrorCallback> Device::setUncapturedErrorCallback(ErrorCallback&
 	wgpuDeviceSetUncapturedErrorCallback(m_raw, cCallback, reinterpret_cast<void*>(handle.get()));
 	return handle;
 }
-void Device::reference() {
+void Device::addRef() {
 	return wgpuDeviceReference(m_raw);
 }
 void Device::release() {
@@ -2221,7 +2221,7 @@ std::unique_ptr<RequestAdapterCallback> Instance::requestAdapter(const RequestAd
 	wgpuInstanceRequestAdapter(m_raw, &options, cCallback, reinterpret_cast<void*>(handle.get()));
 	return handle;
 }
-void Instance::reference() {
+void Instance::addRef() {
 	return wgpuInstanceReference(m_raw);
 }
 void Instance::release() {
@@ -2233,7 +2233,7 @@ void Instance::release() {
 void PipelineLayout::setLabel(char const * label) {
 	return wgpuPipelineLayoutSetLabel(m_raw, label);
 }
-void PipelineLayout::reference() {
+void PipelineLayout::addRef() {
 	return wgpuPipelineLayoutReference(m_raw);
 }
 void PipelineLayout::release() {
@@ -2254,7 +2254,7 @@ QueryType QuerySet::getType() {
 void QuerySet::setLabel(char const * label) {
 	return wgpuQuerySetSetLabel(m_raw, label);
 }
-void QuerySet::reference() {
+void QuerySet::addRef() {
 	return wgpuQuerySetReference(m_raw);
 }
 void QuerySet::release() {
@@ -2290,7 +2290,7 @@ void Queue::writeBuffer(Buffer buffer, uint64_t bufferOffset, void const * data,
 void Queue::writeTexture(const ImageCopyTexture& destination, void const * data, size_t dataSize, const TextureDataLayout& dataLayout, const Extent3D& writeSize) {
 	return wgpuQueueWriteTexture(m_raw, &destination, data, dataSize, &dataLayout, &writeSize);
 }
-void Queue::reference() {
+void Queue::addRef() {
 	return wgpuQueueReference(m_raw);
 }
 void Queue::release() {
@@ -2302,7 +2302,7 @@ void Queue::release() {
 void RenderBundle::setLabel(char const * label) {
 	return wgpuRenderBundleSetLabel(m_raw, label);
 }
-void RenderBundle::reference() {
+void RenderBundle::addRef() {
 	return wgpuRenderBundleReference(m_raw);
 }
 void RenderBundle::release() {
@@ -2359,7 +2359,7 @@ void RenderBundleEncoder::setPipeline(RenderPipeline pipeline) {
 void RenderBundleEncoder::setVertexBuffer(uint32_t slot, Buffer buffer, uint64_t offset, uint64_t size) {
 	return wgpuRenderBundleEncoderSetVertexBuffer(m_raw, slot, buffer, offset, size);
 }
-void RenderBundleEncoder::reference() {
+void RenderBundleEncoder::addRef() {
 	return wgpuRenderBundleEncoderReference(m_raw);
 }
 void RenderBundleEncoder::release() {
@@ -2443,7 +2443,7 @@ void RenderPassEncoder::setViewport(float x, float y, float width, float height,
 void RenderPassEncoder::writeTimestamp(QuerySet querySet, uint32_t queryIndex) {
 	return wgpuRenderPassEncoderWriteTimestamp(m_raw, querySet, queryIndex);
 }
-void RenderPassEncoder::reference() {
+void RenderPassEncoder::addRef() {
 	return wgpuRenderPassEncoderReference(m_raw);
 }
 void RenderPassEncoder::release() {
@@ -2458,7 +2458,7 @@ BindGroupLayout RenderPipeline::getBindGroupLayout(uint32_t groupIndex) {
 void RenderPipeline::setLabel(char const * label) {
 	return wgpuRenderPipelineSetLabel(m_raw, label);
 }
-void RenderPipeline::reference() {
+void RenderPipeline::addRef() {
 	return wgpuRenderPipelineReference(m_raw);
 }
 void RenderPipeline::release() {
@@ -2470,7 +2470,7 @@ void RenderPipeline::release() {
 void Sampler::setLabel(char const * label) {
 	return wgpuSamplerSetLabel(m_raw, label);
 }
-void Sampler::reference() {
+void Sampler::addRef() {
 	return wgpuSamplerReference(m_raw);
 }
 void Sampler::release() {
@@ -2491,7 +2491,7 @@ std::unique_ptr<CompilationInfoCallback> ShaderModule::getCompilationInfo(Compil
 void ShaderModule::setLabel(char const * label) {
 	return wgpuShaderModuleSetLabel(m_raw, label);
 }
-void ShaderModule::reference() {
+void ShaderModule::addRef() {
 	return wgpuShaderModuleReference(m_raw);
 }
 void ShaderModule::release() {
@@ -2518,7 +2518,7 @@ void Surface::present() {
 void Surface::unconfigure() {
 	return wgpuSurfaceUnconfigure(m_raw);
 }
-void Surface::reference() {
+void Surface::addRef() {
 	return wgpuSurfaceReference(m_raw);
 }
 void Surface::release() {
@@ -2536,7 +2536,7 @@ TextureView SwapChain::getCurrentTextureView() {
 void SwapChain::present() {
 	return wgpuSwapChainPresent(m_raw);
 }
-void SwapChain::reference() {
+void SwapChain::addRef() {
 	return wgpuSwapChainReference(m_raw);
 }
 void SwapChain::release() {
@@ -2581,7 +2581,7 @@ uint32_t Texture::getWidth() {
 void Texture::setLabel(char const * label) {
 	return wgpuTextureSetLabel(m_raw, label);
 }
-void Texture::reference() {
+void Texture::addRef() {
 	return wgpuTextureReference(m_raw);
 }
 void Texture::release() {
@@ -2593,7 +2593,7 @@ void Texture::release() {
 void TextureView::setLabel(char const * label) {
 	return wgpuTextureViewSetLabel(m_raw, label);
 }
-void TextureView::reference() {
+void TextureView::addRef() {
 	return wgpuTextureViewReference(m_raw);
 }
 void TextureView::release() {
