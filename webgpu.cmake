@@ -54,8 +54,8 @@ if (NOT TARGET webgpu)
 
 		FetchContent_DeclareShallowGit(
 			webgpu-backend-emscripten
-			GIT_REPOSITORY https://github.com/eliemichel/WebGPU-distribution
-			GIT_TAG        fa0b54d68841fb33188403b07959d403b24511de # emscripten-v3.1.61 + fix
+			GIT_REPOSITORY https://github.com/PJayB/WebGPU-distribution
+			GIT_TAG        5a405c12697d624220ffdfee2df37558df282e6b # emscripten-v3.1.61 + fix
 		)
 		FetchContent_MakeAvailable(webgpu-backend-emscripten)
 
