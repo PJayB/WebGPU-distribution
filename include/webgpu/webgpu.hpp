@@ -1153,20 +1153,20 @@ HANDLE(Adapter)
 	void getProperties(AdapterProperties * properties);
 	Bool hasFeature(FeatureName feature);
 	NO_DISCARD std::unique_ptr<RequestDeviceCallback> requestDevice(const DeviceDescriptor& descriptor, RequestDeviceCallback&& callback);
-	void reference();
+	void addRef();
 	void release();
 	Device requestDevice(const DeviceDescriptor& descriptor);
 END
 
 HANDLE(BindGroup)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(BindGroupLayout)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1180,13 +1180,13 @@ HANDLE(Buffer)
 	NO_DISCARD std::unique_ptr<BufferMapCallback> mapAsync(MapModeFlags mode, size_t offset, size_t size, BufferMapCallback&& callback);
 	void setLabel(char const * label);
 	void unmap();
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(CommandBuffer)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1207,7 +1207,7 @@ HANDLE(CommandEncoder)
 	void resolveQuerySet(QuerySet querySet, uint32_t firstQuery, uint32_t queryCount, Buffer destination, uint64_t destinationOffset);
 	void setLabel(char const * label);
 	void writeTimestamp(QuerySet querySet, uint32_t queryIndex);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1223,7 +1223,7 @@ HANDLE(ComputePassEncoder)
 	void setBindGroup(uint32_t groupIndex, BindGroup group, const uint32_t& dynamicOffsets);
 	void setLabel(char const * label);
 	void setPipeline(ComputePipeline pipeline);
-	void reference();
+	void addRef();
 	void release();
 	void beginPipelineStatisticsQuery(QuerySet querySet, uint32_t queryIndex);
 	void endPipelineStatisticsQuery();
@@ -1232,7 +1232,7 @@ END
 HANDLE(ComputePipeline)
 	BindGroupLayout getBindGroupLayout(uint32_t groupIndex);
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1262,7 +1262,7 @@ HANDLE(Device)
 	void pushErrorScope(ErrorFilter filter);
 	void setLabel(char const * label);
 	NO_DISCARD std::unique_ptr<ErrorCallback> setUncapturedErrorCallback(ErrorCallback&& callback);
-	void reference();
+	void addRef();
 	void release();
 	Bool poll(Bool wait, const WrappedSubmissionIndex& wrappedSubmissionIndex);
 	Bool poll(Bool wait);
@@ -1272,7 +1272,7 @@ HANDLE(Instance)
 	Surface createSurface(const SurfaceDescriptor& descriptor);
 	void processEvents();
 	NO_DISCARD std::unique_ptr<RequestAdapterCallback> requestAdapter(const RequestAdapterOptions& options, RequestAdapterCallback&& callback);
-	void reference();
+	void addRef();
 	void release();
 	size_t enumerateAdapters(const InstanceEnumerateAdapterOptions& options, Adapter * adapters);
 	Adapter requestAdapter(const RequestAdapterOptions& options);
@@ -1280,7 +1280,7 @@ END
 
 HANDLE(PipelineLayout)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1289,7 +1289,7 @@ HANDLE(QuerySet)
 	uint32_t getCount();
 	QueryType getType();
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1301,7 +1301,7 @@ HANDLE(Queue)
 	void submit(const WGPUCommandBuffer& commands);
 	void writeBuffer(Buffer buffer, uint64_t bufferOffset, void const * data, size_t size);
 	void writeTexture(const ImageCopyTexture& destination, void const * data, size_t dataSize, const TextureDataLayout& dataLayout, const Extent3D& writeSize);
-	void reference();
+	void addRef();
 	void release();
 	SubmissionIndex submitForIndex(size_t commandCount, CommandBuffer const * commands);
 	SubmissionIndex submitForIndex(const std::vector<WGPUCommandBuffer>& commands);
@@ -1310,7 +1310,7 @@ END
 
 HANDLE(RenderBundle)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1331,7 +1331,7 @@ HANDLE(RenderBundleEncoder)
 	void setLabel(char const * label);
 	void setPipeline(RenderPipeline pipeline);
 	void setVertexBuffer(uint32_t slot, Buffer buffer, uint64_t offset, uint64_t size);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1360,7 +1360,7 @@ HANDLE(RenderPassEncoder)
 	void setStencilReference(uint32_t reference);
 	void setVertexBuffer(uint32_t slot, Buffer buffer, uint64_t offset, uint64_t size);
 	void setViewport(float x, float y, float width, float height, float minDepth, float maxDepth);
-	void reference();
+	void addRef();
 	void release();
 	void setPushConstants(ShaderStageFlags stages, uint32_t offset, uint32_t sizeBytes, void const * data);
 	void multiDrawIndirect(Buffer buffer, uint64_t offset, uint32_t count);
@@ -1374,20 +1374,20 @@ END
 HANDLE(RenderPipeline)
 	BindGroupLayout getBindGroupLayout(uint32_t groupIndex);
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(Sampler)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(ShaderModule)
 	NO_DISCARD std::unique_ptr<CompilationInfoCallback> getCompilationInfo(CompilationInfoCallback&& callback);
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1398,7 +1398,7 @@ HANDLE(Surface)
 	TextureFormat getPreferredFormat(Adapter adapter);
 	void present();
 	void unconfigure();
-	void reference();
+	void addRef();
 	void release();
 END
 
@@ -1415,13 +1415,13 @@ HANDLE(Texture)
 	TextureUsageFlags getUsage();
 	uint32_t getWidth();
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
 HANDLE(TextureView)
 	void setLabel(char const * label);
-	void reference();
+	void addRef();
 	void release();
 END
 
