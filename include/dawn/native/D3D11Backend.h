@@ -29,6 +29,7 @@
 #define INCLUDE_DAWN_NATIVE_D3D11BACKEND_H_
 
 #include <d3d11_1.h>
+#include <windows.h>
 #include <wrl/client.h>
 
 #include <memory>
