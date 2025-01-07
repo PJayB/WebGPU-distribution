@@ -3,9 +3,9 @@ project(webgpu-backend-dawn VERSION 1.0.0)
 
 message(STATUS "Using Dawn backend for WebGPU")
 
-add_library(webgpu INTERFACE)
-
 if (EMSCRIPTEN)
+
+	add_library(webgpu INTERFACE)
 
 	target_include_directories(webgpu INTERFACE
 		"${CMAKE_CURRENT_SOURCE_DIR}/include-emscripten"
@@ -24,28 +24,109 @@ if (EMSCRIPTEN)
 
 else (EMSCRIPTEN)
 
-	include(cmake/FetchDawn.cmake)
+	set(WGPU ${CMAKE_CURRENT_SOURCE_DIR})
 
-	target_link_libraries(webgpu INTERFACE webgpu_dawn)
-	target_include_directories(webgpu INTERFACE
-		"${CMAKE_CURRENT_SOURCE_DIR}/include"
-		"${dawn_SOURCE_DIR}/include"
-	)
+	# Target architecture detection (thank you CMake for not providing that...)
+	if (NOT ARCH)
+		set(SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR})
+		if (SYSTEM_PROCESSOR STREQUAL "AMD64" OR SYSTEM_PROCESSOR STREQUAL "x86_64")
+			if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+				set(ARCH "x86_64")
+			elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+				set(ARCH "i686")
+			endif()
+		elseif (SYSTEM_PROCESSOR STREQUAL "arm64")
+			set(ARCH "aarch64")
+		endif()
+	endif()
+
+	# A pre-compiled target (IMPORTED) that is a dynamically
+	# linked library (SHARED, meaning .dll, .so or .dylib).
+	add_library(webgpu SHARED IMPORTED GLOBAL)
 
 	# This is used to advertise the flavor of WebGPU that this zip provides
 	target_compile_definitions(webgpu INTERFACE WEBGPU_BACKEND_DAWN)
 
-	# Does nothing, as this dawn-based distribution of WebGPU is statically linked
+	if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+
+		set(WGPU_RUNTIME_LIB ${WGPU}/bin/windows-${ARCH}-msvc/webgpu_dawn.dll)
+		set_target_properties(
+			webgpu
+			PROPERTIES
+				IMPORTED_LOCATION "${WGPU_RUNTIME_LIB}"
+				IMPORTED_IMPLIB "${WGPU_RUNTIME_LIB}.lib"
+				INTERFACE_INCLUDE_DIRECTORIES "${WGPU}/include"
+		)
+
+	elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+
+		set(WGPU_RUNTIME_LIB ${WGPU}/bin/linux-${ARCH}/libwebgpu_dawn.so)
+		set_target_properties(
+			webgpu
+			PROPERTIES
+				IMPORTED_LOCATION "${WGPU_RUNTIME_LIB}"
+				IMPORTED_NO_SONAME TRUE
+				INTERFACE_INCLUDE_DIRECTORIES "${WGPU}/include"
+		)
+
+	# TODO
+	#
+	#elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+	#
+	#	set(WGPU_RUNTIME_LIB ${WGPU}/bin/macos-${ARCH}/libwebgpu_dawn.dylib)
+	#	set_target_properties(
+	#		webgpu
+	#		PROPERTIES
+	#			IMPORTED_LOCATION "${WGPU_RUNTIME_LIB}"
+	#			INTERFACE_INCLUDE_DIRECTORIES "${WGPU}/include"
+	#	)
+
+	else()
+
+		message(FATAL_ERROR "Platform not supported by this release of WebGPU. You may consider manually downloading the appropriate release zip or building it yourself from its source (see https://github.com/gfx-rs/wgpu-native)")
+
+	endif()
+
+	message(STATUS "Using WebGPU runtime from '${WGPU_RUNTIME_LIB}'")
+	set(WGPU_RUNTIME_LIB ${WGPU_RUNTIME_LIB} PARENT_SCOPE)
+	set(WGPU_RUNTIME_LIB ${WGPU_RUNTIME_LIB} CACHE INTERNAL "Path to the WebGPU library binary")
+
+	# The application's binary must find wgpu.dll or libwgpu.so at runtime,
+	# so we automatically copy it (it's called WGPU_RUNTIME_LIB in general)
+	# next to the binary.
+	# Also make sure that the binary's RPATH is set to find this shared library.
 	function(target_copy_webgpu_binaries Target)
 		add_custom_command(
 			TARGET ${Target} POST_BUILD
 			COMMAND
-				"${CMAKE_COMMAND}" -E copy_if_different
-				"$<TARGET_FILE_DIR:webgpu_dawn>/$<TARGET_FILE_NAME:webgpu_dawn>"
-				"$<TARGET_FILE_DIR:${Target}>"
+				${CMAKE_COMMAND} -E copy_if_different
+				${WGPU_RUNTIME_LIB}
+				$<TARGET_FILE_DIR:${Target}>
 			COMMENT
-				"Copying '$<TARGET_FILE_DIR:webgpu_dawn>/$<TARGET_FILE_NAME:webgpu_dawn>' to '$<TARGET_FILE_DIR:${Target}>'..."
+				"Copying '${WGPU_RUNTIME_LIB}' to '$<TARGET_FILE_DIR:${Target}>'..."
 		)
+
+		# TODO
+		#
+		# if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+		# 	# Bug fix, there might be a cleaner way to do this but no INSTALL_RPATH
+		# 	# or related target properties seem to be a solution.
+		# 	set_target_properties(${Target} PROPERTIES INSTALL_RPATH "./")
+		# 	if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+		# 		set(ARCH_DIR aarch64)
+		# 	else()
+		# 		set(ARCH_DIR ${CMAKE_SYSTEM_PROCESSOR})
+		# 	endif()
+		# 	add_custom_command(
+		# 		TARGET ${Target} POST_BUILD
+		# 		COMMAND
+		# 			${CMAKE_INSTALL_NAME_TOOL} "-change"
+		# 			"/Users/runner/work/wgpu-native/wgpu-native/target/${ARCH_DIR}-apple-darwin/release/deps/libwgpu_native.dylib"
+		# 			"@executable_path/libwgpu_native.dylib"
+		# 			"$<TARGET_FILE:${Target}>"
+		# 		VERBATIM
+		# 	)
+		# endif()
 	endfunction()
 
 endif (EMSCRIPTEN)
