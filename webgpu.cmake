@@ -25,7 +25,7 @@
 include(FetchContent)
 
 set(WEBGPU_BACKEND "WGPU" CACHE STRING "Backend implementation of WebGPU. Possible values are EMSCRIPTEN, WGPU, WGPU_STATIC and DAWN (it does not matter when using emcmake)")
-set_property(CACHE WEBGPU_BACKEND PROPERTY STRINGS EMSCRIPTEN WGPU WGPU_STATIC DAWN)
+set_property(CACHE WEBGPU_BACKEND PROPERTY STRINGS EMSCRIPTEN WGPU WGPU_STATIC DAWN DAWN_PRECOMPILED)
 
 # FetchContent's GIT_SHALLOW option is buggy and does not actually do a shallow
 # clone. This macro takes care of it.
@@ -86,9 +86,18 @@ if (NOT TARGET webgpu)
 		)
 		FetchContent_MakeAvailable(webgpu-backend-dawn)
 
+		elseif (WEBGPU_BACKEND_U STREQUAL "DAWN_PRECOMPILED")
+
+			FetchContent_DeclareShallowGit(
+				webgpu-backend-dawn-precompiled
+				GIT_REPOSITORY https://github.com/PJayB/WebGPU-distribution
+				GIT_TAG        ed080132ff848a0990af5d4ae9c93fe85b56a00e # precompiled dawn e0b016fa24
+			)
+			FetchContent_MakeAvailable(webgpu-backend-dawn-precompiled)
+
 	else()
 
-		message(FATAL_ERROR "Invalid value for WEBGPU_BACKEND: possible values are EMSCRIPTEN, WGPU, WGPU_STATIC and DAWN, but '${WEBGPU_BACKEND_U}' was provided.")
+		message(FATAL_ERROR "Invalid value for WEBGPU_BACKEND: possible values are EMSCRIPTEN, WGPU, WGPU_STATIC, DAWN and DAWN_PRECOMPILED, but '${WEBGPU_BACKEND_U}' was provided.")
 
 	endif()
 endif()
