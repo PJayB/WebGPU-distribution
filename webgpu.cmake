@@ -91,7 +91,7 @@ if (NOT TARGET webgpu)
 			FetchContent_DeclareShallowGit(
 				webgpu-backend-dawn-precompiled
 				GIT_REPOSITORY https://github.com/PJayB/WebGPU-distribution
-				GIT_TAG        ed080132ff848a0990af5d4ae9c93fe85b56a00e # precompiled dawn e0b016fa24
+				GIT_TAG        929deed79920ecc61513b268d4a50a7fcbc2da88 # precompiled dawn e0b016fa24
 			)
 			FetchContent_MakeAvailable(webgpu-backend-dawn-precompiled)
 
