@@ -1,0 +1,24 @@
+diff --git "a/tools/fetch_dawn_dependencies.py" "b/tools/fetch_dawn_dependencies.py"
+index 3c6d29af..283a06b9 100644
+--- "a/tools/fetch_dawn_dependencies.py"
++++ "b/tools/fetch_dawn_dependencies.py"
+@@ -102,7 +102,6 @@ def main(args):
+         'third_party/khronos/EGL-Registry',
+         'third_party/khronos/OpenGL-Registry',
+         'third_party/libprotobuf-mutator/src',
+-        'third_party/protobuf',
+         'third_party/markupsafe',
+         'third_party/glslang/src',
+         'third_party/spirv-headers/src',
+@@ -142,9 +141,9 @@ def process_dir(args, dir_path, required_submodules):
+     variables = ldict.get('vars', {})
+ 
+     if deps is None:
+-        log(f"WARNING: DEPS file '{deps_path}' does not define a 'deps' variable"
++        log(f"ERROR: DEPS file '{deps_path}' does not define a 'deps' variable"
+             )
+-        return
++        exit(1)
+ 
+     for submodule in required_submodules:
+         if submodule not in deps:
